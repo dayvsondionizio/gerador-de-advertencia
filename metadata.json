@@ -1,0 +1,5 @@
+{
+  "name": "Gerador de Advertência Profissional",
+  "description": "Sistema para formalização de medidas disciplinares internas com exportação para PDF e impressão em formato A4.",
+  "requestFramePermissions": []
+}
