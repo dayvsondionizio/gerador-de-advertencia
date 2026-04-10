@@ -45,6 +45,7 @@ interface FormData {
   hasOccurrenceDate: boolean;
   occurrenceTime: string;
   hasTime: boolean;
+  docDate: string;
   description: string;
   witnesses: Witness[];
 }
@@ -78,6 +79,7 @@ export default function App() {
     hasOccurrenceDate: true,
     occurrenceTime: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
     hasTime: true,
+    docDate: new Date().toISOString().split('T')[0],
     description: '',
     witnesses: [{ id: Math.random().toString(36).substr(2, 9), name: '' }]
   });
@@ -156,6 +158,7 @@ export default function App() {
       hasOccurrenceDate: true,
       occurrenceTime: `${hours}:${minutes}`,
       hasTime: true,
+      docDate: now.toISOString().split('T')[0],
       description: '',
       witnesses: [{ id: Math.random().toString(36).substr(2, 9), name: '' }]
     });
@@ -217,7 +220,23 @@ export default function App() {
     return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(y, m - 1, d));
   };
 
-  const todayLong = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date());
+  const formatDocDate = () => {
+    if (!formData.docDate) return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date());
+    return formatDateLong(formData.docDate);
+  };
+
+  const getOccurrenceText = () => {
+    const hasDate = formData.hasOccurrenceDate && formData.occurrenceDate;
+    const hasTime = formData.hasTime && formData.occurrenceTime;
+    
+    if (!hasDate && !hasTime) return '';
+    if (hasDate && hasTime) return `em ${formatDateLong(formData.occurrenceDate)}, por volta das ${formData.occurrenceTime}`;
+    if (hasDate) return `em ${formatDateLong(formData.occurrenceDate)}`;
+    if (hasTime) return `por volta das ${formData.occurrenceTime}`;
+    return '';
+  };
+
+  const todayLong = formatDocDate();
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100">
@@ -377,6 +396,23 @@ export default function App() {
                       />
                     </InputGroup>
                   </div>
+                </div>
+
+                {/* Section: Data do Documento */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3 pb-2 border-b border-slate-100">
+                    <Calendar className="text-slate-900" size={20} />
+                    <h2 className="text-xl font-serif font-bold text-slate-900">Data do Documento</h2>
+                  </div>
+                  <InputGroup label="Data de Emissão" icon={Calendar}>
+                    <input
+                      type="date"
+                      name="docDate"
+                      value={formData.docDate}
+                      onChange={handleInputChange}
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-slate-900/5 focus:border-slate-900 outline-none transition-all"
+                    />
+                  </InputGroup>
                 </div>
 
                 {/* Section: Occurrence */}
@@ -583,7 +619,7 @@ export default function App() {
 
                     <p>
                       Vimos por meio desta aplicar-lhe a presente <strong>ADVERTÊNCIA DISCIPLINAR ({formData.warningLevel.toUpperCase()})</strong>, 
-                      em virtude do fato ocorrido em <strong>{formData.hasOccurrenceDate ? formatDateLong(formData.occurrenceDate) : ''}{formData.hasOccurrenceDate && formData.hasTime && formData.occurrenceTime ? ', ' : ''}{formData.hasTime && formData.occurrenceTime ? `por volta das ${formData.occurrenceTime}` : ''}</strong>.
+                      em virtude do fato ocorrido {getOccurrenceText() && <strong>{getOccurrenceText()}</strong>}.
                     </p>
 
                     <div className="bg-[#f8fafc] border-l-4 border-[#0f172a] p-4 rounded-r-xl italic text-[#334155] whitespace-pre-wrap break-words text-[9.5pt]">
