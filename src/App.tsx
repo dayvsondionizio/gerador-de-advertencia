@@ -42,6 +42,7 @@ interface FormData {
   managerName: string;
   managerRole: string;
   occurrenceDate: string;
+  hasOccurrenceDate: boolean;
   occurrenceTime: string;
   hasTime: boolean;
   description: string;
@@ -74,6 +75,7 @@ export default function App() {
     managerName: '',
     managerRole: '',
     occurrenceDate: new Date().toISOString().split('T')[0],
+    hasOccurrenceDate: true,
     occurrenceTime: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
     hasTime: true,
     description: '',
@@ -151,6 +153,7 @@ export default function App() {
       managerName: '',
       managerRole: '',
       occurrenceDate: now.toISOString().split('T')[0],
+      hasOccurrenceDate: true,
       occurrenceTime: `${hours}:${minutes}`,
       hasTime: true,
       description: '',
@@ -383,15 +386,26 @@ export default function App() {
                     <h2 className="text-xl font-serif font-bold text-slate-900">Ocorrência</h2>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <InputGroup label="Data" icon={Calendar}>
-                      <input
-                        type="date"
-                        name="occurrenceDate"
-                        required
-                        value={formData.occurrenceDate}
-                        onChange={handleInputChange}
-                        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-slate-900/5 focus:border-slate-900 outline-none transition-all"
-                      />
+                    <InputGroup label="Data do Ocorrido" icon={Calendar}>
+                      <div className="space-y-2">
+                        <input
+                          type="date"
+                          name="occurrenceDate"
+                          value={formData.occurrenceDate}
+                          onChange={handleInputChange}
+                          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-slate-900/5 focus:border-slate-900 outline-none transition-all"
+                        />
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="hasOccurrenceDate"
+                            checked={formData.hasOccurrenceDate}
+                            onChange={(e) => setFormData(prev => ({ ...prev, hasOccurrenceDate: e.target.checked }))}
+                            className="w-4 h-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900"
+                          />
+                          <span className="text-xs text-slate-500">Incluir data no documento</span>
+                        </label>
+                      </div>
                     </InputGroup>
                     <InputGroup label="Hora" icon={Clock}>
                       <div className="space-y-2">
@@ -569,7 +583,7 @@ export default function App() {
 
                     <p>
                       Vimos por meio desta aplicar-lhe a presente <strong>ADVERTÊNCIA DISCIPLINAR ({formData.warningLevel.toUpperCase()})</strong>, 
-                      em virtude do fato ocorrido em <strong>{formatDateLong(formData.occurrenceDate)}{formData.hasTime && formData.occurrenceTime ? `, por volta das ${formData.occurrenceTime}` : ''}</strong>.
+                      em virtude do fato ocorrido em <strong>{formData.hasOccurrenceDate ? formatDateLong(formData.occurrenceDate) : ''}{formData.hasOccurrenceDate && formData.hasTime && formData.occurrenceTime ? ', ' : ''}{formData.hasTime && formData.occurrenceTime ? `por volta das ${formData.occurrenceTime}` : ''}</strong>.
                     </p>
 
                     <div className="bg-[#f8fafc] border-l-4 border-[#0f172a] p-4 rounded-r-xl italic text-[#334155] whitespace-pre-wrap break-words text-[9.5pt]">
